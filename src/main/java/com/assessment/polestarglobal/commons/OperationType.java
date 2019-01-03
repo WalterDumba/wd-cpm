@@ -4,23 +4,27 @@ import java.util.stream.Stream;
 
 public enum OperationType {
 
-    PARK("p"),
-    UNPARK("u"),
-    COMPACT("c");
+    PARK('p'),
+    UNPARK('u'),
+    COMPACT('c');
 
-    private final String operationId;
+    private final char operationId;
 
-    OperationType(String opeartionId) {
-        this.operationId= opeartionId;
+    OperationType(char operationId) {
+        this.operationId= operationId;
     }
 
 
-    public static OperationType fromOperationId(String operationId){
+    public char getOperationId() {
+        return operationId;
+    }
+
+    public static OperationType fromOperationId(char operationId){
         return Stream
                 .of(values())
-                .filter( op->operationId.equals(operationId))
+                .filter( op->op.operationId==operationId)
                 .findAny()
-                .orElseThrow(()-> new IllegalArgumentException(operationId));
+                .orElseThrow(()-> new IllegalArgumentException(""+operationId));
 
     }
 }

@@ -3,6 +3,7 @@ package com.assessment.polestarglobal;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Stream;
 
 public class ParkManagerServiceImpl implements ParkManagerServiceInterface {
 
@@ -45,7 +46,7 @@ public class ParkManagerServiceImpl implements ParkManagerServiceInterface {
         return parkId;
     }
 
-    public boolean unpark(int ticketNumber) {
+    public boolean unPark(int ticketNumber) {
         String licencePlate = this.ticketsAlreadyTaken.remove(ticketNumber);
         return licencePlate!= null;
     }
@@ -53,5 +54,29 @@ public class ParkManagerServiceImpl implements ParkManagerServiceInterface {
 
     public boolean compact() {
         return true;
+    }
+
+    @Override
+    public String currentState() {
+        String[] parkCurrentState = this.ticketsAlreadyTaken.entrySet()
+                .stream()
+                .map(Map.Entry::getValue)
+                .toArray( l->new String[10]);
+        String parkCurrentStateShortDesc=Stream
+                .of(parkCurrentState)
+                .reduce( (e1, e2)-> {
+                    if(e1 == null) return ",";
+                    else if(e2 == null) return e1+",";
+                    else return e1+","+e2;
+                })
+                .get();
+        return parkCurrentStateShortDesc;
+    }
+
+    @Override
+    public String toString() {
+        return "ParkManagerServiceImpl{" +
+                "ticketsAlreadyTaken=" + ticketsAlreadyTaken +
+                '}';
     }
 }

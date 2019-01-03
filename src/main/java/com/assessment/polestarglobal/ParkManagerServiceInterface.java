@@ -14,12 +14,17 @@ public interface ParkManagerServiceInterface {
      * @param ticketNumber
      * @return
      */
-    boolean unpark(int ticketNumber);
+    boolean unPark(int ticketNumber);
 
     /**
      *
      * @return
      */
     boolean compact();
+
+    /**
+     *
+     */
+    String currentState();
 
 }

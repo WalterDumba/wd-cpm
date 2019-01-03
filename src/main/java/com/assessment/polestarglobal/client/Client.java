@@ -15,8 +15,10 @@ public class Client{
 
 
     private ParkManagerServiceInterface parkManagerService;
-    private Map<OperationType, Function> operationHandlers;
-    private static final Pattern expectePattern= Pattern.compile("TODO:");
+    private Map<OperationType, Function<String,?>> operationHandlers;
+    private static final Pattern EXPECTED_PATTERN= Pattern.compile("(p\\w{3})*+(u\\d{4})*+(c)*+(,)*");
+    private static final String TOKEN=",";
+    private static final int CAPACITY=10;
     private String parameters;
 
 
@@ -29,14 +31,14 @@ public class Client{
 
 
     private void initializeOperationHandlers() {
-        this.operationHandlers = new HashMap<>();
+        this.operationHandlers = new HashMap<>(CAPACITY);
         this.registerOperationHandlers();
     }
 
 
     private void registerOperationHandlers() {
-        this.operationHandlers.put(OperationType.PARK,      (licePlate) ->park((String) licePlate) );
-        this.operationHandlers.put(OperationType.UNPARK,    (ticketNumber)->unpark((Integer) ticketNumber));
+        this.operationHandlers.put(OperationType.PARK, this::park);
+        this.operationHandlers.put(OperationType.UNPARK, this::unPark);
         this.operationHandlers.put(OperationType.COMPACT,   (discarded)->compact());
     }
 
@@ -45,8 +47,9 @@ public class Client{
         return this.parkManagerService.park(licencePlate);
     }
 
-    public boolean unpark(int ticketNumber) {
-        return this.parkManagerService.unpark(ticketNumber);
+    public boolean unPark(String ticketNumber) {
+        int ticketNr = Integer.valueOf(ticketNumber);
+        return this.parkManagerService.unPark(ticketNr);
     }
 
     public boolean compact() {
@@ -57,25 +60,50 @@ public class Client{
 
 
     private void showResults() {
+        System.out.println(this.parkManagerService.currentState());
     }
 
     private void process() {
-        String[] commandArr = parameters.split(",");
+        String[] commandArr = parameters.split(TOKEN);
+        char currentOperationId;
+        String underlyingParameters;
+
+        for(int i=0; i< commandArr.length; ++i){
+            currentOperationId   = commandArr[i].charAt(0);
+            underlyingParameters = commandArr[i].length() > 1 ? commandArr[i].substring(1): null;
+            Function<String, ?> operationHandler = this.operationHandlers.get(OperationType.fromOperationId(currentOperationId));
+            operationHandler.apply(underlyingParameters);
+        }
     }
 
     private void collectParameters() {
-        this.showMenu();
+
         Scanner kbd = new Scanner(System.in);
-        String input = null;
+        String input;
         do{
+            this.clearScreen();
+            this.showMenu();
             input = kbd.nextLine();
         }while (!validParameters(input));
         this.parameters = input;
     }
 
+    private static void clearScreen() {
+        for(int i=0; i<50; ++i)
+            System.out.println();
+    }
+
+
+    /**
+     * TODO: validation
+     *
+     * @param input
+     * @return
+     */
     private static boolean validParameters(String input) {
+
+        //return EXPECTED_PATTERN.matcher(input).find();
         return true;
-        //TODO:
     }
 
     private void showMenu() {
@@ -84,7 +112,8 @@ public class Client{
         System.out.println("|===============================================|");
         System.out.println("|                                               |");
         System.out.println("|Please introduce your parameters               |");
-        System.out.println("|>");
+        System.out.println("|                                               |");
+        System.out.println("|>                                              |");
     }
 
 
