@@ -2,6 +2,10 @@ package com.assessment.polestarglobal.commons;
 
 import java.util.stream.Stream;
 
+/**
+ * Enum manage the operations allowed on this service
+ *
+ */
 public enum OperationType {
 
     PARK('p'),

@@ -16,9 +16,9 @@ public class Client{
 
     private ParkManagerServiceInterface parkManagerService;
     private Map<OperationType, Function<String,?>> operationHandlers;
-    private static final Pattern EXPECTED_PATTERN= Pattern.compile("(p\\w{3})*+(u\\d{4})*+(c)*+(,)*");
+    private static final Pattern EXPECTED_PATTERN= Pattern.compile("(p\\w{3})+|(u\\d{4})+|(c)+|(,)+");
     private static final String TOKEN=",";
-    private static final int CAPACITY=10;
+    private static final int HANDLERS_TABLE_SIZE=4;
     private String parameters;
 
 
@@ -31,7 +31,7 @@ public class Client{
 
 
     private void initializeOperationHandlers() {
-        this.operationHandlers = new HashMap<>(CAPACITY);
+        this.operationHandlers = new HashMap<>(HANDLERS_TABLE_SIZE);
         this.registerOperationHandlers();
     }
 
@@ -59,11 +59,11 @@ public class Client{
 
 
 
-    private void showResults() {
+    public void showResults() {
         System.out.println(this.parkManagerService.currentState());
     }
 
-    private void process() {
+    public void process() {
         String[] commandArr = parameters.split(TOKEN);
         char currentOperationId;
         String underlyingParameters;
@@ -88,32 +88,35 @@ public class Client{
         this.parameters = input;
     }
 
+
+    /**===========================================================================================
+     |                                 STATIC PART                                               |
+     *===========================================================================================**/
+
     private static void clearScreen() {
-        for(int i=0; i<50; ++i)
+        for(int i=0; i<30; ++i)
             System.out.println();
     }
 
-
-    /**
-     * TODO: validation
-     *
-     * @param input
-     * @return
-     */
     private static boolean validParameters(String input) {
 
-        //return EXPECTED_PATTERN.matcher(input).find();
+        String[] commands = input.split(TOKEN);
+        for(int i=0; i< commands.length; ++i){
+            if( !EXPECTED_PATTERN.matcher(commands[i]).find() ){
+                return false;
+            }
+        }
         return true;
     }
 
-    private void showMenu() {
+    private static void showMenu() {
         System.out.println("|===============================================|");
         System.out.println("|       Park Manager Client App                 |");
         System.out.println("|===============================================|");
         System.out.println("|                                               |");
         System.out.println("|Please introduce your parameters               |");
         System.out.println("|                                               |");
-        System.out.println("|>                                              |");
+        System.out.print("|>");
     }
 
 

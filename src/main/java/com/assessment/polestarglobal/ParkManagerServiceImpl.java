@@ -10,9 +10,9 @@ public class ParkManagerServiceImpl implements ParkManagerServiceInterface {
 
     private AtomicInteger tickets;
     private static ParkManagerServiceInterface instance;
-    private static final int TICKET_MONITOR_INITIAL_VALUE = 5000;
     private Map<Integer, String> ticketsAlreadyTaken;
-
+    private static final int TICKET_MONITOR_INITIAL_VALUE = 5000;
+    private static final int CAPACITY =10;
 
 
     /**
@@ -40,18 +40,24 @@ public class ParkManagerServiceImpl implements ParkManagerServiceInterface {
         this.ticketsAlreadyTaken    = new ConcurrentHashMap<>();
     }
 
+    @Override
     public int park(String licencePlate) {
+        if(this.ticketsAlreadyTaken.size()>CAPACITY){
+            return -1;
+        }
         int parkId = this.tickets.getAndIncrement();
         this.ticketsAlreadyTaken.put(parkId, licencePlate);
         return parkId;
     }
 
+    @Override
     public boolean unPark(int ticketNumber) {
         String licencePlate = this.ticketsAlreadyTaken.remove(ticketNumber);
         return licencePlate!= null;
     }
 
 
+    @Override
     public boolean compact() {
         return true;
     }
